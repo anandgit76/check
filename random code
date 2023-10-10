@@ -1,0 +1,515 @@
+class _Custom_SignInState extends State<Custom_SignIn> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    // ... (rest of your code)
+
+    custom1(
+      hintText: "Enter Password",
+      isPass: true,
+      controller: _passwordController,
+    ),
+    custom1(
+      hintText: "Confirm Password",
+      isPass: true,
+      controller: _confirmPasswordController,
+    ),
+
+    Container(
+      margin: EdgeInsets.only(
+        left: 10,
+        right: 10,
+        top: 30,
+      ),
+      height: MediaQuery.of(context).size.height / 13,
+      width: MediaQuery.of(context).size.width,
+      child: FloatingActionButton.extended(
+        label: Text(
+          "Sign_In",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Colors.blueGrey,
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            if (_passwordController.text == _confirmPasswordController.text) {
+              // Passwords match, continue with sign-in logic
+            } else {
+              // Passwords don't match, show an error message
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Passwords do not match")),
+              );
+            }
+          }
+        },
+      ),
+    ),
+    // ... (rest of your code)
+  }
+}
+
+Widget custom1({
+  // ... (other parameters)
+  TextEditingController? controller,
+}) {
+  return GestureDetector(
+    // ... (other code)
+    child: Container(
+      child: TextFormField(
+        controller: controller,
+        // ... (other code)
+      ),
+      // ... (other code)
+    ),
+  );
+}
+
+// ... (rest of your code)
+
+
+Widget custom1({
+  String? textValidate,
+  String? hintText,
+  bool isEmail = false,
+  double? height,
+  double? width,
+  String? Function(String?)? validator,
+  bool? isPass,
+  TextEditingController? controller,
+}) {
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+  return GestureDetector(
+    // onTap: onTap,
+    child: Container(
+      margin: EdgeInsets.only(
+        left: 10,
+        right: 10,
+        top: 10,
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: isPass ?? false,
+        validator: (value) {
+          if (isEmail) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter an email';
+            }
+            if (!emailRegex.hasMatch(value)) {
+              return 'Please enter a valid email';
+            }
+          }
+          if (validator != null) {
+            return validator(value);
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          hintText: hintText,
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(width: 8, color: Colors.blueGrey),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          border: InputBorder.none,
+          filled: true,
+        ),
+      ),
+    ),
+  );
+}
+
+
+import 'package:flutter/material.dart';
+
+Widget custom1({
+  // ... other parameters
+  String? Function(String?)? validator,
+  bool? isPass,
+  TextEditingController? controller,
+}) {
+  return GestureDetector(
+    // onTap: onTap,
+    child: Container(
+      margin: EdgeInsets.only(
+        left: 10,
+        right: 10,
+        top: 10,
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: isPass ?? false,
+        decoration: InputDecoration(
+          hintText: hintText,
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(width: 5, color: Colors.blueGrey),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          border: InputBorder.none,
+          filled: true,
+        ),
+        validator: (value) {
+          if (validator != null) {
+            // If a custom validator is provided, use it
+            return validator(value);
+          } else {
+            if (value == null || value.isEmpty) {
+              return 'Please enter an email';
+            } else if (!isValidEmail(value)) {
+              return 'Please enter a valid email address';
+            }
+            return null; // No validation errors
+          }
+        },
+      ),
+    ),
+  );
+}
+
+bool isValidEmail(String email) {
+  // You can use a regular expression or any other method
+  // to validate the email format.
+  // Here's a simple email format validation using a regex:
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  return emailRegex.hasMatch(email);
+}
+
+custom1(
+  hintText: "Enter Email Here",
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter an email';
+    }
+    return null; // No validation errors
+  },
+),
+
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:my_dummy_app/Firebase%20Authenticaton/Home_UI.dart';
+import 'package:my_dummy_app/Firebase%20Authenticaton/SignIN_UI2.dart';
+import 'LogIn_UI.dart';
+
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  // Add a regular expression for email validation
+  final RegExp emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
+
+  @override
+  Widget build(BuildContext context) {
+    String emailAddress = '', password = '';
+
+    return Scaffold(
+      // ... (your existing code)
+
+      Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Container(
+            // ... (your existing code)
+
+            Container(
+              child: TextFormField(
+                onChanged: (value) {
+                  emailAddress = value;
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please Enter Your Email";
+                  }
+                  if (!emailRegex.hasMatch(value)) {
+                    return "Please Enter a Valid Email Address";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  labelText: 'Email Address',
+                  filled: true,
+                ),
+              ),
+              margin: EdgeInsets.only(
+                left: 12, right: 12, top: 20,
+              ),
+            ),
+
+            // ... (your existing code)
+
+            FloatingActionButton.extended(
+              // ... (your existing code)
+
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  _signup(emailAddress, password, context);
+                }
+              },
+            ),
+
+            // ... (your existing code)
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ... (your existing code)
+
+}
+
+
+Container(
+  child: TextFormField(
+    onChanged: (value){
+      password = value;
+    },
+    obscureText: true,
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return 'Please enter a password.';
+      }
+      if (value.length < 6) {
+        return 'Password must be at least 6 characters.';
+      }
+      return null;
+    },
+    decoration: InputDecoration(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      labelText: 'Password',
+      filled: true,
+    ),
+  ),
+  margin: EdgeInsets.only(
+    left: 12, right: 12, top: 20,
+  ),
+),
+
+Container(
+  margin: EdgeInsets.only(
+    left: 10,
+    right: 10,
+    top: 30,
+  ),
+  height: MediaQuery.of(context).size.height / 13,
+  width: MediaQuery.of(context).size.width,
+  child: FloatingActionButton.extended(
+    label: Text(
+      "Sign_In",
+      style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),
+    ),
+    backgroundColor: Colors.blueGrey,
+    onPressed: () async {
+      if (_formKey.currentState!.validate()) {
+        _signup(emailAddress, password, context);
+      }
+    }
+  ),
+),
+
+
+
+
+_signup(
+      {required String email,
+      required String password,
+      required BuildContext context}) async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      print("=======================$credential");
+      if (credential.toString().isNotEmpty) {
+        print("===========+++++++============$credential");
+        setState(() {
+          emptyFields();
+        });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(),
+            ));
+      } else {
+        print("========here");
+      }
+      ;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  emptyFields() {
+    name.text="";
+    email.text="";
+    pass.text="";
+  }
+
+
+_signup({
+  required String email,
+  required String password,
+  required BuildContext context,
+}) async {
+  try {
+    final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    if (credential.user != null) {
+      // Create a new document for the user in the "Users" collection
+      await FirebaseFirestore.instance.collection("Users").doc(credential.user!.uid).set({
+        "UserName": name.text,
+        "Email": email,
+        // You can add more fields here as needed
+      });
+
+      setState(() {
+        emptyFields();
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(),
+        ),
+      );
+    } else {
+      print("User creation failed");
+    }
+  } on FirebaseAuthException catch (e) {
+    // Handle FirebaseAuthException
+    // ...
+  } catch (e) {
+    // Handle other exceptions
+    print(e.toString());
+  }
+}
+
+Future<void> _signInWithFacebook() async {
+  try {
+    final LoginResult result = await FacebookAuth.instance.login();
+
+    if (result.status == LoginStatus.success) {
+      final AuthCredential credential = FacebookAuthProvider.credential(result.accessToken!.token);
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+      if (userCredential.user != null) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      }
+    } else if (result.status == LoginStatus.cancelled) {
+      print("Facebook login cancelled");
+    } else {
+      print("Facebook login failed");
+    }
+  } catch (e) {
+    print("Error during Facebook login: $e");
+  }
+}
+
+
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+// ... (other imports)
+
+class _LoginScreenState extends State<LoginScreen> {
+  // ... (other variables and methods)
+
+  Future<void> _signInWithFacebook() async {
+    try {
+      final LoginResult result = await FacebookAuth.instance.login(permissions: ['email']);
+
+      if (result.status == LoginStatus.success) {
+        final OAuthCredential credential = FacebookAuthProvider.credential(result.accessToken!.token);
+        final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+        print("=======================$credential");
+        if (credential.toString().isNotEmpty) {
+          print("===========+++++++============$credential");
+          setState(() {
+            emptyFields();
+          });
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else {
+          print("=========here");
+        }
+        if (userCredential.user != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        }
+      } else if (result.status == LoginStatus.cancelled) {
+        print("Facebook login cancelled");
+      } else {
+        print("Facebook login failed");
+      }
+    } catch (e) {
+      print("Error during Facebook login: $e");
+    }
+  }
+
+  // ... (other parts of the class)
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Container(
+            // ... (rest of your UI code)
+            Row(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(
+                    left: 12,
+                    right: 8,
+                    top: 30,
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _signInWithFacebook(); // Call the Facebook authentication method here
+                    },
+                    style: ElevatedButton.styleFrom(
+                        elevation: 12.0,
+                        textStyle: const TextStyle(color: Colors.white)),
+                    child: const Text('Facebook'),
+                  ),
+                ),
+                // ... (other buttons)
+              ],
+            ),
+            // ... (rest of your UI code)
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ... (other parts of the class)
+}
